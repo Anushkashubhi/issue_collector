@@ -1,4 +1,7 @@
 import groovy.json.JsonSlurper 
+import groovy.util.logging.Slf4j
+import org.slf4j.impl.OutputChoice
+import spock.lang.Specification
 
 @NonCPS
 collectissues(String data){
@@ -15,4 +18,29 @@ echo "$projectName"
 def call(){
  def request = libraryResource 'data1.json'
  collectissues(request)
+}
+
+class SpyMethodArgsExampleSpec extends Specification {
+
+    def "testing logging activity, but why?"() {
+        given:
+        ConsoleHandler ch = Spy(ConsoleHandler)
+
+        PrintStream printStream = Mock(PrintStream)
+        ch.log.CONFIG_PARAMS.outputChoice = Mock(OutputChoice)
+        ch.log.CONFIG_PARAMS.outputChoice.getTargetPrintStream() >> printStream
+
+        when:
+        ch.run()
+
+        then:
+        1 * printStream.println(_ as String)
+    }
+
+    @Slf4j
+    static class ConsoleHandler {
+        void run() {
+            log.error("test")
+        }
+    }
 }
